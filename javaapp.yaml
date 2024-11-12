@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javaapp-deployment
+  labels:
+    app: javaapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: javaapp
+  template:
+    metadata:
+      labels:
+        app: javaapp
+    spec:
+      containers:
+      - name: javaapp
+        image: gsadowski69/gs-spring-boot-app:2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres-service.default.svc.cluster.local:5432/postgres"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: javaapp-service
+spec:
+  type: NodePort
+  selector:
+    app: javaapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30000
