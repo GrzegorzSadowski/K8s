@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: elk
+spec:
+  selector:
+    matchLabels:
+      app: filebeat
+  template:
+    metadata:
+      labels:
+        app: filebeat
+    spec:
+      containers:
+        - name: filebeat
+          image: docker.elastic.co/beats/filebeat:8.16.0
+          volumeMounts:
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: filebeatconfig
+              mountPath: /usr/share/filebeat/filebeat.yml
+              subPath: filebeat.yml
+      volumes:
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: filebeatconfig
+          configMap:
+            name: filebeat-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: elk
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+      - type: container
+        paths:
+          - /var/lib/docker/containers/*/*.log
+        processors:
+          - add_docker_metadata: ~
+    setup.kibana.host: "kibana:5601"  # Kibana service URL in Kubernetes (update if different)
+    output.logstash:
+      hosts: ["logstash:5044"]
