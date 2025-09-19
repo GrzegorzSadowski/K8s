@@ -9,4 +9,4 @@ data:
     network.host: 0.0.0.0
     xpack.security.enabled: false
     xpack.ssl.enabled: false
-BB
+BBBAA
