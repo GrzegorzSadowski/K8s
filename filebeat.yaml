@@ -46,3 +46,7 @@ data:
     setup.kibana.host: "kibana:5601"  # Kibana service URL in Kubernetes (update if different)
     output.logstash:
       hosts: ["logstash:5044"]
+      
+  
+
+
